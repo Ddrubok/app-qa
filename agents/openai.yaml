@@ -1,0 +1,4 @@
+interface:
+  display_name: "App QA"
+  short_description: "앱 기능·사용 불편·AI slop을 근거와 우선순위로 점검"
+  default_prompt: "$app-qa 이 앱의 주요 사용자 흐름을 점검하고, 기능 문제·사용 불편·AI slop을 근거와 최소 수정 방향, 재점검 목록으로 정리해주세요."
