@@ -1,88 +1,89 @@
 # App QA
 
-[한국어](README.md) | [English](README.en.md)
+[English](README.md) | [한국어](README.ko.md)
 
-**앱을 쓰는 사람이 어디서 막히는지 찾아, 근거와 수정 우선순위로 정리하는 AI 에이전트용 스킬입니다.**
+**An AI agent skill for finding where people get stuck in an app, then reporting the evidence and which fixes matter most.**
 
-QA(Quality Assurance)는 제품이 의도한 대로 작동하는지 점검하는 일입니다. 앱이 실행된다는 사실만으로 가입, 모임 참여, 채팅, 취소까지 제대로 된다고 볼 수는 없습니다. App QA는 이런 사용 과정을 따라가며 오류와 불편을 살펴보도록 에이전트에 지침을 제공합니다.
+QA stands for *Quality Assurance*: checking whether a product works as intended. An app launching successfully does not tell you whether signing up, joining an event, chatting, or cancelling a booking works correctly. App QA gives an agent instructions for following those user journeys and looking for defects and friction.
 
-스킬은 에이전트가 읽는 작업 지침입니다. 이 저장소 자체가 앱을 자동 실행하거나 모든 버그를 찾아내는 프로그램은 아닙니다. 실제 점검 범위는 에이전트가 접근할 수 있는 코드, 브라우저, 테스트 계정과 기기에 따라 달라집니다.
+A skill is a set of instructions an agent reads. This repository is not a standalone program that runs your app or automatically finds every bug. What the agent can check depends on the code, browser tools, test accounts, and devices it can access.
 
-## 무엇을 점검하나요?
+## What does it check?
 
-| 종류 | 살펴보는 것 | 예시 |
+| Area | What it looks for | Example |
 |---|---|---|
-| 기능 오류 | 버튼이나 처리 과정이 의도대로 작동하는지 | 참가에 성공했는데 채팅방에는 들어갈 수 없음 |
-| 사용 불편 | 사용자가 현재 상황과 다음 행동을 이해할 수 있는지 | 오류가 났는데 로딩 표시만 계속 돌아감 |
-| 안내와 실제 동작의 차이 | 문구·배지·숫자에 근거가 있는지 | 인증 정보를 확인하지 않고 ‘인증 완료’ 표시 |
-| 수정 후 재점검 | 이전 문제가 해결됐는지, 다른 경로에 남았는지 | 화면의 닉네임은 고쳤지만 알림에는 이전 닉네임이 나옴 |
+| Functional defects | Whether controls and processes do what they should | Joining an event succeeds, but its chat room is inaccessible |
+| Usability | Whether people can understand the current state and their next step | A loading indicator keeps spinning after a request fails |
+| Claims versus behavior | Whether labels, badges, and numbers have evidence behind them | A profile says “Verified” without checking verification data |
+| Checks after fixes | Whether an earlier issue is resolved or remains in another path | A nickname is corrected in the app but still wrong in notifications |
 
-표의 예시는 점검 방식을 설명하기 위한 가상 상황입니다.
+These are hypothetical examples illustrating the review process.
 
-## 어떻게 문제를 판단하나요?
+## How does it judge a problem?
 
-예를 들어 ‘저장 완료’라는 메시지가 나왔지만 화면을 다시 열면 내용이 사라진다고 해봅시다. 메시지만 보고 성공으로 판단하지 않고, 버튼이 실제 저장을 요청하는지, 서버가 요청을 처리했는지, 다시 읽어 오는 과정이 맞는지 확인합니다.
+Suppose an app displays “Saved,” but the content disappears when you reopen the screen. The agent should not accept the message as proof of success. It checks whether the button actually requests a save, whether the server processes it, and whether the app reads the saved data correctly.
 
-결과에는 확인 수준을 구분합니다.
+Findings distinguish three levels of evidence:
 
-- **직접 재현:** 앱을 조작해 문제가 발생하는 것을 확인했습니다. 재현 순서와 환경을 남깁니다.
-- **코드로 확인:** 화면부터 서비스·서버·권한 규칙까지 관련 코드를 따라가며 확인했습니다. 직접 실행한 결과와 구분합니다.
-- **추가 확인 필요:** 특정 계정이나 실제 기기, 운영 정책이 없어 아직 결론을 내릴 수 없습니다. 확정된 문제 수에 섞지 않습니다.
+- **Reproduced:** The agent used the app and observed the problem. It records the steps and environment.
+- **Code-confirmed:** The agent traced the relevant screen, service, server logic, and permission rules. This is kept separate from running the app and observing the result.
+- **Needs verification:** A required account, physical device, or operating policy is unavailable, so the conclusion remains open. These items are not counted as confirmed defects.
 
-이 구분이 있어야 개발자가 무엇부터 고칠지, 무엇을 더 시험해야 할지 알 수 있습니다. 테스트에서 서버 응답을 가짜로 대신했다면 그 사실도 적습니다.
+This distinction helps developers decide what to fix and what still needs testing. If a test replaces a real server response with a simulated one, the report says so.
 
-## 여기서 AI slop은 무엇인가요?
+## What does “AI slop” mean here?
 
-이 스킬에서 AI slop은 **실제 기능보다 완성되어 보이게 만드는 부실한 화면 요소나 안내**를 뜻합니다. 예를 들면 다음과 같습니다.
+In this skill, AI slop means **weak or misleading interface elements that make a product appear more complete than its actual functionality supports**. Examples include:
 
-- ‘구매하기’를 눌렀는데 구매 과정 없이 안내 메시지만 나옵니다.
-- 지급 기능이 없는데 ‘참여하면 보상을 드립니다’라고 약속합니다.
-- 통계를 계산하지 않으면서 항상 같은 숫자를 보여줍니다.
-- ‘미인증’ 경고를 표시하지만 인증할 방법을 제공하지 않습니다.
+- A “Buy” button that only displays a message and never starts a purchase.
+- A promise of participation rewards with no implementation to award them.
+- Statistics that always show the same number without calculating anything.
+- An “Unverified” warning with no available way to complete verification.
 
-AI가 만들었는지를 판별하는 도구는 아닙니다. 둥근 카드나 아이콘을 썼다는 이유만으로 문제라고 판단하지도 않습니다. 사용자의 이해와 실제 행동에 어떤 영향을 주는지가 기준입니다.
+The skill does not detect whether AI wrote the app. Rounded cards or icons are not defects by themselves. The question is how an element affects what people understand and what they can actually do.
 
-## 설치와 사용
+## Installation and usage
 
-Codex에서 사용하려면 이 저장소의 내용을 `app-qa` 폴더로 받아 스킬 디렉터리에 둡니다. 기본 위치는 `~/.codex/skills/app-qa`이며, 별도로 `CODEX_HOME`을 설정했다면 그 아래 `skills/app-qa`를 사용합니다. 핵심 파일이 `app-qa/SKILL.md` 경로에 있어야 합니다.
+To use the skill in Codex, download this repository into a folder named `app-qa` inside your skills directory. The default location is `~/.codex/skills/app-qa`. If you use a custom `CODEX_HOME`, place it under `skills/app-qa` within that directory. The main file should be at `app-qa/SKILL.md`.
 
-설치 후 스킬을 사용할 수 있는 세션에서 다음처럼 요청합니다.
-
-```text
-$app-qa 이 앱의 가입부터 주요 기능 이용까지 점검하고,
-기능 오류·사용 불편·AI slop을 근거와 수정 우선순위로 정리해주세요.
-```
-
-특정 기능만 볼 수도 있습니다.
+Once the skill is available in your session, try:
 
 ```text
-$app-qa 모임 신청·승인·취소 흐름을 점검해주세요.
-정원이 찼을 때와 통신이 실패했을 때의 동작도 확인해주세요.
+$app-qa Review this app from signup through its main user journeys.
+Report functional defects, usability friction, and AI slop with evidence
+and prioritized fixes.
 ```
 
-이미 수정한 내용을 다시 확인할 때는 이전 보고서와 수정 범위를 함께 알려주세요.
+You can also focus on one feature:
 
 ```text
-$app-qa 이전 QA 보고서의 수정 항목을 다시 확인하고,
-해결된 문제와 남은 문제, 아직 시험하지 못한 부분을 구분해주세요.
+$app-qa Review event requests, approvals, and cancellations.
+Include what happens when an event is full or a network request fails.
 ```
 
-## 어떤 결과를 받나요?
+When checking changes, provide the previous report and the scope of the fixes:
 
-점검 범위가 넓으면 Markdown 보고서를, 간단한 점검이면 짧은 결과를 작성하도록 안내합니다. 보고서에는 문제의 발생 조건, 사용자에게 미치는 영향, 코드 위치 또는 재현 근거, 최소 수정 방향과 수정 후 확인할 목록이 포함됩니다.
+```text
+$app-qa Recheck the fixes from the previous QA report.
+Separate resolved issues, remaining issues, and anything not yet tested.
+```
 
-문제를 고치기 위해 항상 새 기능을 만들 필요는 없습니다. 지원하지 않는 기능의 버튼을 숨기거나 잘못된 설명을 고치는 것만으로 해결되는 경우도 있습니다. 스킬은 확인된 원인에 맞는 작은 수정을 우선 제안합니다.
+## What do you get?
 
-## 알아둘 한계
+For a substantial review, the skill guides the agent to write a Markdown report. For a small review, a short response may be enough. Findings include the conditions that trigger the problem, its effect on users, source locations or reproduction evidence, a minimal correction, and a practical check to run after fixing it.
 
-- QA만 요청하면 점검과 보고를 진행합니다. 코드 수정이나 배포까지 자동으로 요청된 것으로 해석하지 않습니다.
-- 브라우저 점검이 성공해도 실제 iPhone이나 Android의 백그라운드 동작까지 확인한 것은 아닙니다.
-- 운영 서비스의 결제·메시지 발송·데이터 삭제는 단순 QA 요청의 범위에 포함하지 않습니다. 테스트 환경과 이미 허용된 작업 범위를 따릅니다.
-- 빌드 성공이나 오류 로그가 없다는 사실만으로 ‘전체 QA 통과’라고 결론 내리지 않습니다.
+Fixing a problem does not always require building a new feature. Hiding an unsupported control or correcting inaccurate text may be sufficient. The skill favors small corrections that address the confirmed cause.
 
-## 파일 구성
+## Limits to keep in mind
 
-- [SKILL.md](SKILL.md): 에이전트가 따르는 점검 지침
-- [agents/openai.yaml](agents/openai.yaml): 스킬 표시 이름과 기본 요청 예시
+- A request for QA means inspection and reporting. It does not automatically request code changes or deployment.
+- A successful browser check does not establish that background behavior works on a physical iPhone or Android device.
+- Payments, messages to real users, and production data deletion are outside a simple QA request. The agent follows the available test environment and the work already authorized.
+- A successful build or an empty error log is not enough to declare that the entire app passed QA.
 
-이 설명은 ELI15–18 방식에 맞춰, 필요한 용어를 풀어 쓰면서 작동 방식과 한계를 함께 설명했습니다.
+## Repository files
+
+- [SKILL.md](SKILL.md): Review instructions for the agent.
+- [agents/openai.yaml](agents/openai.yaml): The skill's display name and example invocation.
+
+This explanation follows the ELI15–18 approach: define necessary terms, explain how the process works, and preserve its important limits.
