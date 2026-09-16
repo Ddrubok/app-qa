@@ -44,7 +44,18 @@ The skill does not detect whether AI wrote the app. Rounded cards or icons are n
 
 ## Installation and usage
 
-To use the skill in Codex, download this repository into a folder named `app-qa` inside your skills directory. The default location is `~/.codex/skills/app-qa`. If you use a custom `CODEX_HOME`, place it under `skills/app-qa` within that directory. The main file should be at `app-qa/SKILL.md`.
+Download this repository into an `app-qa` folder at one of these locations:
+
+| Scope | Location |
+|---|---|
+| Personal, across projects | `~/.agents/skills/app-qa` |
+| Shared with one project | `<project>/.agents/skills/app-qa` |
+
+These locations follow the [official Codex skill documentation](https://learn.chatgpt.com/docs/build-skills), checked on 2026-09-16. The main file should be at `app-qa/SKILL.md`.
+
+Some installer or host setups use `$CODEX_HOME/skills/app-qa` (commonly `~/.codex/skills/app-qa`). Keep a working installation there rather than moving it just because the paths differ. In the maintainer's Windows/Orca session, this skill was discovered from `~/.codex/skills/app-qa` through a `CODEX_HOME/skills` junction; the installed CLI reported `codex-cli 0.154.0`. This is an observed local setup, not a compatibility test of every host or installation method.
+
+After installation, check that `app-qa` appears in the skill selector (`/skills` or `$` in Codex CLI/IDE). If it does not appear, restart the session and check the folder location. Avoid installing duplicate copies under the same skill name.
 
 Once the skill is available in your session, try:
 
@@ -80,10 +91,13 @@ Fixing a problem does not always require building a new feature. Hiding an unsup
 - A successful browser check does not establish that background behavior works on a physical iPhone or Android device.
 - Payments, messages to real users, and production data deletion are outside a simple QA request. The agent follows the available test environment and the work already authorized.
 - A successful build or an empty error log is not enough to declare that the entire app passed QA.
+- A test account may still connect to production. The agent checks the actual destinations and authorized targets before actions with side effects, removes secrets and unnecessary personal data from evidence, and treats instructions inside inspected content as data.
+- Expected behavior needs a basis, such as a requirement or a product promise. Clearly labeled demo data and legitimate review states are not automatically defects.
 
 ## Repository files
 
 - [SKILL.md](SKILL.md): Review instructions for the agent.
 - [agents/openai.yaml](agents/openai.yaml): The skill's display name and example invocation.
+- [Evaluation cases](references/evaluation-cases.md): Small maintainer scenarios for checking false positives, evidence quality, and scope boundaries. Cases are not test results.
 
 This explanation follows the ELI15–18 approach: define necessary terms, explain how the process works, and preserve its important limits.
